@@ -1,0 +1,14 @@
+name: Roles
+version: ${project.version}
+main: me.starminer.Roles
+api-version: 1.19
+description: Each player will have an assigned role (Builder, Crafter, Fighter, Miner) and it will rotate every 5 minutes.
+commands:
+  start:
+    description: start the challenge
+    usage: /<command>
+    aliases: begin
+  stop:
+    description: stop the challenge
+    usage: /<command>
+    aliases: halt
