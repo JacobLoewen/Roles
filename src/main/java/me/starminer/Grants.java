@@ -148,9 +148,13 @@ public class Grants implements Listener {
             if (players.size() != 0) {
                 Player p = players.get(random.nextInt(players.size()));
 
-//                roles.put(p, Role.values()[i]);
-                roles.put(p, Role.values()[random.nextInt(4)]); //TODO TEMPORARY
+                roles.put(p, Role.values()[i]);
+//                roles.put(p, Role.values()[random.nextInt(4)]); //TEMPORARY
                 //TODO: CLOSE THE INVENTORY OF CHESTS!
+
+                if (roles.get(p) != Role.CRAFT){
+                    //Close inventory of accessible blocks logic goes here!
+                }
 
                 players.remove(p);
                 onDamage(p);
