@@ -48,6 +48,8 @@ public class Grants implements Listener {
         BREAK
     }
 
+
+
 //    public enum BlockMaterial {
 //        CRAFTING_TABLE,
 //        FURNACE,
@@ -83,6 +85,29 @@ public class Grants implements Listener {
 //        DARK_OAK_DOOR
 //    }
 
+    public static EnumSet<Material> weaponMaterials = EnumSet.of(
+            Material.BOW, Material.CROSSBOW, Material.TRIDENT,
+            Material.SNOWBALL, Material.EGG, Material.FIRE_CHARGE,
+            Material.SPLASH_POTION, Material.TIPPED_ARROW,
+            Material.POTION, Material.LINGERING_POTION
+    );
+
+    public static EnumSet<Material> foodMaterials = EnumSet.of(
+            Material.APPLE, Material.BAKED_POTATO, Material.BEETROOT,
+            Material.BEETROOT_SOUP, Material.BREAD, Material.CAKE, Material.CARROT,
+            Material.CARROT_ON_A_STICK, Material.CHORUS_FRUIT, Material.COOKED_BEEF,
+            Material.COOKED_CHICKEN, Material.COOKED_COD, Material.COOKED_MUTTON,
+            Material.COOKED_PORKCHOP, Material.COOKED_RABBIT, Material.COOKED_SALMON,
+            Material.COOKIE, Material.DRIED_KELP, Material.ENCHANTED_GOLDEN_APPLE,
+            Material.GOLDEN_APPLE, Material.GOLDEN_CARROT, Material.HONEY_BOTTLE,
+            Material.MELON, Material.MUSHROOM_STEW, Material.POISONOUS_POTATO,
+            Material.PORKCHOP, Material.POTATO, Material.PUMPKIN_PIE,
+            Material.RABBIT, Material.RABBIT_STEW, Material.ROTTEN_FLESH,
+            Material.SPIDER_EYE, Material.SUSPICIOUS_STEW, Material.SWEET_BERRIES,
+            Material.TROPICAL_FISH, Material.COD, Material.SALMON,
+            Material.MUTTON, Material.CHICKEN, Material.BEEF, Material.PUFFERFISH
+    );
+
     public static EnumSet<Material> craftMaterials = EnumSet.of(
             Material.CRAFTING_TABLE, Material.FURNACE, Material.BLAST_FURNACE, Material.SMOKER,
             Material.ANVIL, Material.CHIPPED_ANVIL, Material.DAMAGED_ANVIL, Material.BARREL,
@@ -93,7 +118,24 @@ public class Grants implements Listener {
             Material.BLUE_SHULKER_BOX, Material.BROWN_SHULKER_BOX, Material.GREEN_SHULKER_BOX,
             Material.RED_SHULKER_BOX, Material.BLACK_SHULKER_BOX, Material.HOPPER,
             Material.OAK_DOOR, Material.SPRUCE_DOOR, Material.BIRCH_DOOR,
-            Material.JUNGLE_DOOR, Material.ACACIA_DOOR, Material.DARK_OAK_DOOR, Material.BELL
+            Material.JUNGLE_DOOR, Material.ACACIA_DOOR, Material.DARK_OAK_DOOR, Material.BELL, Material.CHEST,
+            Material.CHEST_MINECART, Material.TRAPPED_CHEST, Material.ENDER_CHEST,
+            Material.ACACIA_BUTTON, Material.STONE_BUTTON, Material.OAK_BUTTON,
+            Material.SPRUCE_BUTTON, Material.BIRCH_BUTTON, Material.JUNGLE_BUTTON,
+            Material.DARK_OAK_BUTTON, Material.CRIMSON_BUTTON, Material.WARPED_BUTTON,
+            Material.CARTOGRAPHY_TABLE, Material.BREWING_STAND, Material.ENCHANTING_TABLE,
+            Material.BEACON, Material.DROPPER, Material.DISPENSER, Material.JUKEBOX,
+            Material.NOTE_BLOCK, Material.LECTERN, Material.OAK_FENCE_GATE,
+            Material.SPRUCE_FENCE_GATE, Material.BIRCH_FENCE_GATE, Material.JUNGLE_FENCE_GATE,
+            Material.ACACIA_FENCE_GATE, Material.DARK_OAK_FENCE_GATE, Material.OAK_TRAPDOOR,
+            Material.SPRUCE_TRAPDOOR, Material.BIRCH_TRAPDOOR, Material.JUNGLE_TRAPDOOR,
+            Material.ACACIA_TRAPDOOR, Material.DARK_OAK_TRAPDOOR, Material.LEVER,
+            Material.OAK_PRESSURE_PLATE, Material.SPRUCE_PRESSURE_PLATE, Material.BIRCH_PRESSURE_PLATE,
+            Material.JUNGLE_PRESSURE_PLATE,Material.ACACIA_PRESSURE_PLATE, Material.DARK_OAK_PRESSURE_PLATE,
+            Material.STONE_PRESSURE_PLATE, Material.HEAVY_WEIGHTED_PRESSURE_PLATE, Material.LIGHT_WEIGHTED_PRESSURE_PLATE,
+            Material.DAYLIGHT_DETECTOR, Material.COMPARATOR, Material.REPEATER,
+            Material.REDSTONE_TORCH, Material.REDSTONE_LAMP, Material.TARGET,
+            Material.LOOM, Material.STONECUTTER, Material.SMITHING_TABLE
     );
 
     public static void swapRoles() { //Class only for timing (put methods with more detail in this one)
@@ -106,10 +148,10 @@ public class Grants implements Listener {
             if (players.size() != 0) {
                 Player p = players.get(random.nextInt(players.size()));
 
-                //Make this player enum type BUILD
-//                    p.setMetadata("playerType", new FixedMetadataValue(Roles.instanceClass(), PlayerType.values()[i]));
+//                roles.put(p, Role.values()[i]);
+                roles.put(p, Role.values()[random.nextInt(4)]); //TODO TEMPORARY
+                //TODO: CLOSE THE INVENTORY OF CHESTS!
 
-                roles.put(p, Role.values()[i]);
                 players.remove(p);
                 onDamage(p);
                 System.out.println("Number of players: " + players.size());
@@ -164,18 +206,40 @@ public class Grants implements Listener {
                 p.sendMessage("Right-Clicked");
                 Material blockMaterialCRAFT = Objects.requireNonNull(e.getClickedBlock()).getType();
 
+
 //            for(BlockMaterial craftMaterial : BlockMaterial.values()) {
                 //if (blockMaterialCRAFT == Material.valueOf(craftMaterial.name())) { //MAKE ENUM
+                if(e.getItem() != null && foodMaterials.contains(e.getItem().getType())){
+                    p.sendMessage("FOOOOD!");
+                }
 
+                if(e.getItem() != null && weaponMaterials.contains(e.getItem().getType())){
+                    p.sendMessage("WEAPONS!");
+                    if(role != Role.FIGHT){
+                        e.setCancelled(true);
+                    }
+                }
+
+                p.sendMessage("Test1");
                 if (craftMaterials.contains(blockMaterialCRAFT)) { //Only Crafter can right-click interactive blocks
                     p.sendMessage("Interactible Block"); //CRAFTING SOLO DONE Pt.1 (ALSO SNEAKING FOR BUILD)
                     if (role != Role.CRAFT && (!(role == Role.BUILD && p.isSneaking()))) {
                         e.setCancelled(true);
                     }
-                } else if (role != Role.BUILD) { //BUILD SOLO DONE
+                }
+                else if (role != Role.BUILD) { //BUILD SOLO DONE
                     e.setCancelled(true);
                 }
-            } else if (e.getAction() == Action.LEFT_CLICK_BLOCK) {
+            }
+            else if(e.getAction() == Action.RIGHT_CLICK_AIR){
+                if(e.getItem() != null && weaponMaterials.contains(e.getItem().getType())){
+                    p.sendMessage("WEAPONS!");
+                    if(role != Role.FIGHT){
+                        e.setCancelled(true);
+                    }
+                }
+            }
+            else if (e.getAction() == Action.LEFT_CLICK_BLOCK) {
                 if (role != Role.BREAK) {
                     e.setCancelled(true); //BREAK SOLO DONE
                 }
