@@ -1,7 +1,9 @@
 package me.starminer;
 
 import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.*;
@@ -12,6 +14,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.*;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
@@ -31,6 +34,8 @@ public class Grants implements Listener {
     }
 
     public static Map<Player, Role> roles = new HashMap<>();
+
+    public static int num = 120; //starting wait time
 
     //BUILD, CRAFT, FIGHT, BREAK
 
@@ -108,6 +113,12 @@ public class Grants implements Listener {
             Material.MUTTON, Material.CHICKEN, Material.BEEF, Material.PUFFERFISH
     );
 
+    public static EnumSet<InventoryType> inventoryBlocks = EnumSet.of(
+        InventoryType.CHEST, InventoryType.BARREL, InventoryType.DISPENSER, InventoryType.DROPPER, InventoryType.HOPPER,
+        InventoryType.FURNACE, InventoryType.BLAST_FURNACE, InventoryType.SMOKER, InventoryType.BREWING, InventoryType.SHULKER_BOX,
+        InventoryType.LECTERN, InventoryType.CARTOGRAPHY, InventoryType.LOOM, InventoryType.STONECUTTER, InventoryType.SMITHING,
+        InventoryType.GRINDSTONE, InventoryType.ANVIL, InventoryType.ENCHANTING);
+
     public static EnumSet<Material> craftMaterials = EnumSet.of(
             Material.CRAFTING_TABLE, Material.FURNACE, Material.BLAST_FURNACE, Material.SMOKER,
             Material.ANVIL, Material.CHIPPED_ANVIL, Material.DAMAGED_ANVIL, Material.BARREL,
@@ -138,8 +149,7 @@ public class Grants implements Listener {
             Material.LOOM, Material.STONECUTTER, Material.SMITHING_TABLE
     );
 
-    public static void swapRoles() { //Class only for timing (put methods with more detail in this one)
-//        System.out.println("Test");
+    public static void swapRolesTemp(){
         roles.clear();
         Random random = new Random();
         List<Player> players = new ArrayList<>(Bukkit.getOnlinePlayers());
@@ -154,15 +164,80 @@ public class Grants implements Listener {
 
                 if (roles.get(p) != Role.CRAFT){
                     //Close inventory of accessible blocks logic goes here!
+                    if(inventoryBlocks.contains(p.getOpenInventory().getType())){
+                        p.closeInventory();
+                    }
                 }
 
                 players.remove(p);
                 onDamage(p);
                 System.out.println("Number of players: " + players.size());
-
-
             }
         }
+    }
+
+    public static void swapRoles() { //Class only for timing (put methods with more detail in this one)
+//        System.out.println("Test");
+        Random rand = new Random();
+        num = rand.nextInt(540) + 60;
+        new Delayer(() -> {
+            for(Player p : Bukkit.getServer().getOnlinePlayers()){
+                p.sendMessage("Swapping in 10 seconds");
+//                p.sendMessage(String.valueOf(num));
+            }
+            new Delayer(() -> {
+                for(Player p : Bukkit.getServer().getOnlinePlayers()){
+                    p.sendMessage(ChatColor.AQUA + "Swapping in 5 seconds");
+                }
+                new Delayer(() -> {
+                    for(Player p : Bukkit.getServer().getOnlinePlayers()){
+                        p.sendMessage(ChatColor.GREEN + "Swapping in 4 seconds");
+                    }
+                    new Delayer(() -> {
+                        for(Player p : Bukkit.getServer().getOnlinePlayers()){
+                            p.sendMessage(ChatColor.YELLOW + "Swapping in 3 seconds");
+                        }
+                        new Delayer(() -> {
+                            for(Player p : Bukkit.getServer().getOnlinePlayers()){
+                                p.sendMessage(ChatColor.GOLD + "Swapping in 2 seconds");
+                            }
+                            new Delayer(() -> {
+                                for(Player p : Bukkit.getServer().getOnlinePlayers()){
+                                    p.sendMessage(ChatColor.RED + "Swapping in 1 seconds");
+                                }
+                                new Delayer(() -> {
+                                    roles.clear();
+                                    Random random = new Random();
+                                    List<Player> players = new ArrayList<>(Bukkit.getOnlinePlayers());
+
+                                    for (int i = 0; i < 4; i++) {
+                                        if (players.size() != 0) {
+                                            Player p = players.get(random.nextInt(players.size()));
+
+                                        roles.put(p, Role.values()[i]);
+//                                            roles.put(p, Role.values()[random.nextInt(4)]); //TEMPORARY
+                                            //TODO: CLOSE THE INVENTORY OF CHESTS!
+
+                                            if (roles.get(p) != Role.CRAFT){
+                                                //Close inventory of accessible blocks logic goes here!
+                                                if(inventoryBlocks.contains(p.getOpenInventory().getType())){
+                                                    p.closeInventory();
+                                                }
+                                            }
+
+                                            players.remove(p);
+                                            onDamage(p);
+                                            System.out.println("Number of players: " + players.size());
+                                        }
+                                    }
+                                    swapRoles();
+                                }, 20);
+                            }, 20);
+                        }, 20);
+                    }, 20);
+                }, 20);
+            }, 100);
+        }, num * 20);
     }
 
 
@@ -170,19 +245,23 @@ public class Grants implements Listener {
 
         Role role = roles.get(p);
         if (role == Role.BUILD) {
-            p.sendMessage("BUILD"); // THIS IS BY DEFAULT
+            p.sendMessage(ChatColor.AQUA + "" + ChatColor.UNDERLINE + "PLACE"); // THIS IS BY DEFAULT
+            sendTitle(p, "PLACE", ChatColor.AQUA);
         }
 
         if (role == Role.CRAFT) {
-            p.sendMessage("CRAFT");
+            p.sendMessage(ChatColor.GOLD + "" + ChatColor.UNDERLINE + "CRAFT");
+            sendTitle(p, "CRAFT", ChatColor.GOLD);
         }
 
         if (role == Role.FIGHT) {
-            p.sendMessage("FIGHT");
+            p.sendMessage(ChatColor.DARK_RED + "" + ChatColor.UNDERLINE + "FIGHT");
+            sendTitle(p, "FIGHT", ChatColor.DARK_RED);
         }
 
         if (role == Role.BREAK) {
-            p.sendMessage("BREAK");
+            p.sendMessage(ChatColor.GREEN + "" + ChatColor.UNDERLINE + "BREAK");
+            sendTitle(p, "BREAK", ChatColor.GREEN);
         }
     }
 
@@ -207,26 +286,26 @@ public class Grants implements Listener {
 
 
             if (e.getAction() == Action.RIGHT_CLICK_BLOCK) { //BUILD
-                p.sendMessage("Right-Clicked");
+//                p.sendMessage("Right-Clicked");
                 Material blockMaterialCRAFT = Objects.requireNonNull(e.getClickedBlock()).getType();
 
 
 //            for(BlockMaterial craftMaterial : BlockMaterial.values()) {
                 //if (blockMaterialCRAFT == Material.valueOf(craftMaterial.name())) { //MAKE ENUM
                 if(e.getItem() != null && foodMaterials.contains(e.getItem().getType())){
-                    p.sendMessage("FOOOOD!");
+//                    p.sendMessage("FOOOOD!");
                 }
 
                 if(e.getItem() != null && weaponMaterials.contains(e.getItem().getType())){
-                    p.sendMessage("WEAPONS!");
+//                    p.sendMessage("WEAPONS!");
                     if(role != Role.FIGHT){
                         e.setCancelled(true);
                     }
                 }
 
-                p.sendMessage("Test1");
+//                p.sendMessage("Test1");
                 if (craftMaterials.contains(blockMaterialCRAFT)) { //Only Crafter can right-click interactive blocks
-                    p.sendMessage("Interactible Block"); //CRAFTING SOLO DONE Pt.1 (ALSO SNEAKING FOR BUILD)
+//                    p.sendMessage("Interactible Block"); //CRAFTING SOLO DONE Pt.1 (ALSO SNEAKING FOR BUILD)
                     if (role != Role.CRAFT && (!(role == Role.BUILD && p.isSneaking()))) {
                         e.setCancelled(true);
                     }
@@ -237,7 +316,7 @@ public class Grants implements Listener {
             }
             else if(e.getAction() == Action.RIGHT_CLICK_AIR){
                 if(e.getItem() != null && weaponMaterials.contains(e.getItem().getType())){
-                    p.sendMessage("WEAPONS!");
+//                    p.sendMessage("WEAPONS!");
                     if(role != Role.FIGHT){
                         e.setCancelled(true);
                     }
@@ -269,7 +348,7 @@ public class Grants implements Listener {
         if(startRoles) {
             Player p = e.getPlayer();
 
-            p.sendMessage("Mob interaction!");
+//            p.sendMessage("Mob interaction!");
 
             Role role = roles.get(p);
             EntityType entityType = e.getRightClicked().getType();
@@ -284,11 +363,11 @@ public class Grants implements Listener {
                     e.setCancelled(true);
                 }
             } else if (role != Role.FIGHT) { // FIGHT SOLO DONE
-                p.sendMessage("Mob interaction!");
+//                p.sendMessage("Mob interaction!");
 
                 e.setCancelled(true);
             }
-            p.sendMessage("Mob interaction!");
+//            p.sendMessage("Mob interaction!");
         }
 
     }
@@ -297,12 +376,12 @@ public class Grants implements Listener {
 
 //ALL PLAYERS (OTHER)
 
-    @EventHandler
-    public static void preventSleep(PlayerBedEnterEvent e){
-        if(startRoles) {
-            e.setCancelled(true);
-        }
-    }
+//    @EventHandler
+//    public static void preventSleep(PlayerBedEnterEvent e){
+//        if(startRoles) {
+//            e.setCancelled(true);
+//        }
+//    }
 
     @EventHandler
     public static void playerShearInteraction(PlayerShearEntityEvent e){
@@ -313,6 +392,10 @@ public class Grants implements Listener {
                 e.setCancelled(true);
             }
         }
+    }
+
+    private static void sendTitle(Player player, String title, ChatColor color) {
+        player.sendTitle(color + title, "", 10, 20, 10);
     }
 
 }

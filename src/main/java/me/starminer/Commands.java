@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 
 import static me.starminer.Grants.swapRoles;
 //import static me.starminer.Roles.getInstance;
+import static me.starminer.Grants.swapRolesTemp;
 import static me.starminer.Roles.startRoles;
 
 public class Commands implements CommandExecutor {
@@ -23,7 +24,8 @@ public class Commands implements CommandExecutor {
 
             if(cmd.getName().equalsIgnoreCase("start")){
                 startRoles = true;
-                player.sendMessage("READY PLAYER ONE?");
+//                player.sendMessage("READY PLAYER ONE?");
+                swapRolesTemp();
                 swapRoles();
                 System.out.println("Test2");
             }

@@ -18,6 +18,7 @@ public final class Roles extends JavaPlugin {
         System.out.println("ROLES!!!");
 //        Objects.requireNonNull(getCommand("start")).setExecutor(new Commands());
         new Grants(this);
+        new Delayer(this);
         Commands commands = new Commands();
         Objects.requireNonNull(getCommand("start")).setExecutor(commands);
         Objects.requireNonNull(getCommand("begin")).setExecutor(commands);
@@ -25,7 +26,7 @@ public final class Roles extends JavaPlugin {
         Objects.requireNonNull(getCommand("halt")).setExecutor(commands);
 
         BukkitRunnable role = new Role();
-        role.runTaskTimer(this, 0, 20 * 2 * 5);
+//        role.runTaskTimer(this, 0, 20 * 60 * 5);
     }
 
     @Override
